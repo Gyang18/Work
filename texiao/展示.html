@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<style type="text/css">
+			body{margin: 0; padding: 0;background: #666;}
+			#box{
+				width:1200px;
+				height: 600px;
+				position: relative;
+				margin: 20px auto;
+				background:url(img/1.jpg);
+				background-size: 100% 100%;
+				transform-style: preserve-3d;
+				perspective: 800px;		
+			}
+			img{
+				border: none;
+				vertical-align: top;
+			}
+			#box img{
+				width: 300px;
+				height:200px;
+				position: absolute;
+				top:207px;
+				left:428px;
+				box-shadow: 2px 2px 2px #666;
+				transition: .7s ease-in-out;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="box">
+			<img src="img/1.jpg" alt="" />
+			<img src="img/img0.jpg" alt="" />
+			<img src="img/img1.jpg" alt="" />
+			<img src="img/img2.jpg" alt="" />
+			<img src="img/img3.jpg" alt="" />
+			<img src="img/img4.jpg" alt="" />
+			<img src="img/img5.jpg" alt="" />
+		</div>
+	</body>
+	<script type="text/javascript">
+		window.onload=function(){
+			var oImg=document.getElementsByTagName('img');
+			var onff=true;
+			var now=2;
+			var target;
+			setTimeout(function(){
+				tab(now);
+			},300);	
+			for (var i = 0; i < oImg.length; i++) {
+				oImg[i].index=i;
+				oImg[i].onclick=function(){
+					if(!onff){
+						return;
+					}
+					onff = false;
+					target=this.index;
+				if( target > now ) {
+					if( target - now <= 3) {
+					goNext();	
+				}else{
+					goPrev();
+				}
+			}else{
+				if(target+7-now<=3){
+					goNext();
+				}else{
+					goPrev();
+				}
+			}
+		}
+}
+			
+			function goNext(){
+					now++;
+					if(now>6){
+					now=0;
+				}	
+			tab(now);
+			if(now==target){
+				onff=true;
+				return;
+		}
+		setTimeout(function(){
+					goNext();
+				},500);
+}
+		function goPrev(){
+					now--;
+					if(now<0){
+						now=6;
+				}
+				tab(now);
+			if(now==target){
+				onff=true;
+				return;
+		}
+		setTimeout(function(){
+			goPrev();
+		},500);
+	}
+		
+			//封装 n图片位置 函数
+			function tab(n){
+				for (var i = 0; i < 3; i++) {
+					var Left=n-1-i;
+					//console.log(Left);
+					if(Left<0){
+					Left=Left+7;
+					}
+					oImg[Left].style.transform=
+	"translateX("+(-150*(i+1))+"px) translateZ("+(200-i*100)+"px) rotateY(30deg)";
+					var Right=n+1+i;
+						if(Right>6){
+					Right=Right-7;
+					}
+					oImg[Right].style.transform=
+					"translateX("+(150*(i+1))+"px) translateZ("+(200-i*100)+"px) rotateY(-30deg)";
+				}
+			oImg[n].style.transform="translateZ(300px)";
+			}
+		}
+	</script>
+</html>

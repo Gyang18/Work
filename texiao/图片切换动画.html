@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<style type="text/css">
+			#box{
+				width: 400px;
+				height: 300px;
+				margin: 50px auto;
+				background-color: #5E5E5E;
+				overflow: hidden;
+			}
+			#warp{
+				width: 400px;
+				height:300px;
+				transform-style: preserve-3d;
+				perspective: 800px;
+			}
+			#warp div{
+				width: 10px;
+				height:300px ;
+				background: url(img/img1.jpg) no-repeat ;
+
+				float: left;
+				transition: 1s;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="box">
+			<div id="warp">
+				<div></div>
+			</div>
+		</div>
+	</body>
+	<script type="text/javascript">
+		window.onload=function(){
+			var oDiv=document.getElementById('warp');
+			var str='';
+            var timer;
+			var num=0;
+			var srcNum=0;
+			var divs=oDiv.getElementsByTagName("div");
+			go();
+			function go() {
+                timer=setInterval(function () {
+                   // console.log(1);
+                    tab(num);
+                    num++;
+                    if(num==71){
+                        clearInterval(timer);
+                        srcNum++;
+                        if(srcNum==5){
+                            srcNum=1;
+						}
+                        num=0;
+                        setTimeout(go,500);
+                    }
+                },100)
+            }
+
+			for (var i = 0; i < 70; i++){
+				 str+="<div style='background-position-x:"+(i*-10)+"px'></div>";
+			}
+			oDiv.innerHTML=str;
+			function tab(n) {
+				if(divs[n-1]){
+				    divs[n-1].style.opacity=1;//把上一个设置为不透明
+				}
+				if(divs[n]){
+                 divs[n].style.opacity=0;
+                 divs[n].style.backgroundImage="url(img/img"+srcNum+".jpg)";
+                }
+
+            }
+		}
+	</script>
+</html>
