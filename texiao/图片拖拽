@@ -1,0 +1,243 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        * {
+            padding: 0;
+            margin: 0;
+        }
+        
+        li {
+            list-style: none;
+        }
+        
+        .container {
+            width: 660px;
+            height: auto;
+            margin: 10px auto;
+            overflow: hidden;
+        }
+        
+        .container ul {
+            width: auto;
+            height: auto;
+        }
+        
+        .container li {
+            float: left;
+            margin: 5px 10px;
+        }
+        
+        .container li img {
+            width: 200px;
+            height: 200px;
+            border: none;
+        }
+        
+        .active {
+            border: 2px solid red;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <ul>
+            <li><img src="imgs/1.jpg" /></li>
+            <li><img src="imgs/2.jpg" /></li>
+            <li><img src="imgs/3.jpg" /></li>
+            <li><img src="imgs/4.jpg" /></li>
+            <li><img src="imgs/5.jpg" /></li>
+            <li><img src="imgs/6.jpg" /></li>
+            <li><img src="imgs/7.jpg" /></li>
+            <li><img src="imgs/8.jpg" /></li>
+            <li><img src="imgs/9.jpg" /></li>
+        </ul>
+    </div>
+</body>
+<script src="js/move.js"></script>
+<script>
+    // window.onload = function() {
+    /*
+    面向过程的函数封装;
+    面向对象
+    0.改变li的布局 
+    1.拖拽事件
+    2.碰撞检测
+    3.计算碰撞成功距离最近的li
+    4.鼠标抬起 交换碰撞成功的li的位置
+    */
+    //把浮动布局改为定位布局（优点减少计算量）
+    var aLi = document.getElementsByTagName("li");
+    var arr = [];
+    //存储li的偏移量
+    for (var i = 0; i < aLi.length; i++) {
+        //存储一个索引值 方便确定每个li的值
+
+        arr.push([aLi[i].offsetLeft, aLi[i].offsetTop]);
+    }
+    // console.log(arr);
+    //改变li布局
+    for (var i = 0; i < aLi.length; i++) {
+        aLi[i].style.position = "absolute";
+        aLi[i].style.left = arr[i][0] + 'px';
+        aLi[i].style.top = arr[i][1] + 'px';
+        aLi[i].style.margin = 0; //js获取偏移量的时候已经包括了margin所以把css的margin清空
+    }
+    //绑定拖拽事件
+    for (var i = 0; i < aLi.length; i++) {
+        aLi[i].index = i;
+        drag(aLi[i]);
+    }
+    //封装拖拽函数
+    //定义一个层级
+    var z = 1;
+
+    function drag(obj) {
+        obj.onmousedown = function(ev) {
+            // console.log(this);//this作用域
+            //console.log(arguments);// 事件参数
+            var ev = ev || window.event; //处理浏览器兼容问题
+            //console.log(ev);
+            //获取鼠标坐标位置
+            var x0 = ev.clientX;
+            var y0 = ev.clientY;
+            //获取鼠标原来的位置
+            left_old = obj.offsetLeft;
+            top_old = obj.offsetTop;
+            //改变拖拽对象的层级
+            obj.style.zIndex = z++;
+
+            //因为原素是在整个页面上移动所以给document添加事件
+            document.onmousemove = function(ev) {
+                    var ev = ev || window.event; //处理浏览器兼容问题
+                    //新的鼠标坐标位置
+                    var new_left = ev.clientX - x0 + left_old;
+                    var new_top = ev.clientY - y0 + top_old;
+                    //把新的坐标位置值给obj
+                    /*
+                    注意：
+                    图片默认能被拖拽有默认样式，记住要清除它
+                    清除：return false;
+                    */
+                    obj.style.left = new_left + 'px';
+                    obj.style.top = new_top + 'px';
+
+                    //碰撞检测
+                    /*
+                    for (var i = 0; i < aLi.length; i++) {
+                        if (impact(obj, aLi[i]) && obj != aLi[i]) {
+                            aLi[i].className = "active";
+                        }
+                    }
+                        */
+                    for (var i = 0; i < aLi.length; i++) {
+                        aLi[i].className = '';
+                    }
+                    var oLi = nearLi(obj);
+                    if (oLi) {
+                        oLi.className = "active";
+                    }
+                }
+                //解绑事件
+            document.onmouseup = function() {
+                    document.onmousemove = null;
+                    document.onmouseup = null;
+
+                    //  4.鼠标抬起 交换碰撞成功的li的位置
+                    var nL = nearLi(obj);
+                    var tmp = 0 //定义一个临时变量存储index值，中间交换值
+                    if (nL) {
+                        //让碰撞成功的li和拖拽的obj做交换
+                        move(nL, {
+                            left: arr[obj.index][0],
+                            top: arr[obj.index][1]
+                        });
+                        move(obj, {
+                            left: arr[nL.index][0],
+                            top: arr[nL.index][1]
+                        });
+                        nL.className = '';
+                        //记住要交换索引值 index
+                        tmp = obj.index;
+                        obj.index = nL.index;
+                        nL.index = tmp;
+
+                    } else {
+                        //如果没有碰撞成功
+                        move(obj, {
+                            left: arr[obj.index][0],
+                            top: arr[obj.index][1]
+                        });
+                    }
+                }
+                //清除默认样式 跳出函数（优先执行）
+            return false;
+
+
+        }
+    };
+
+    //碰撞检测 返回一个值（让代码继不继续执行下去）
+    function impact(obj1, obj2) {
+        //移动中元素的位置距离计算
+        var T1 = obj1.offsetTop,
+            L1 = obj1.offsetLeft,
+            B1 = T1 + obj1.offsetHeight,
+            R1 = L1 + obj1.offsetWidth;
+        //将要碰撞的元素位置计算
+        var T2 = obj2.offsetTop,
+            L2 = obj2.offsetLeft,
+            B2 = T2 + obj2.offsetHeight,
+            R2 = L2 + obj2.offsetWidth;
+        //判断碰撞是否成功（反其道行之用不成功作为判断条件）
+        //注意下边和右边的距离计算 因为他们是获取不到的
+        if (B1 < T2 || R1 < L2 || T1 > B2 || L1 > R2) {
+            //不成功
+            // console.log("不成功");
+            return false;
+        } else {
+            //成功
+            // console.log("成功");
+            return true;
+
+        }
+
+    }
+    //计算碰撞成功距离最近的li
+    function distance(obj1, obj2) {
+        //勾股定理
+        var a = obj1.offsetLeft - obj2.offsetLeft;
+        var b = obj1.offsetTop - obj2.offsetTop;
+        //a*a+b*b=c*c;
+        return Math.sqrt(a * a + b * b);
+
+    }
+
+    function nearLi(obj) {
+        var n = 10000; //中间变量
+        var oLi = '';
+        //碰撞成功
+        for (var i = 0; i < aLi.length; i++) {
+            if (impact(obj, aLi[i]) && obj != aLi[i]) {
+                var c = distance(obj, aLi[i]);
+                //判断出最小值
+                if (c < n) {
+                    n = c;
+                    //console.log(n);
+                    oLi = aLi[i];
+                }
+            }
+        }
+        return oLi;
+    }
+    //}
+</script>
+
+</html>
