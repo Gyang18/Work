@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+    <style type="text/css">
+        .oDiv {
+            position: relative;
+            height: 40px;
+            line-height: 40px;
+            width: 402px;
+            margin: 200px auto;
+            border: 1px solid #000;
+        }
+        
+        #oBox {
+            top: -16px;
+            z-index: 999;
+            display: flex;
+            position: absolute;
+            height: 40px;
+            line-height: 40px;
+        }
+        
+        #oBox li {
+            position: absolute;
+            flex: 1;
+            float: left;
+            list-style: none;
+            height: 40px;
+            line-height: 40px;
+            width: 40px;
+            text-align: center;
+            font-size: 16px;
+            top: 0;
+            opacity: 1;
+        }
+        
+        .bgBox {
+            opacity: 1;
+            width: 0;
+            position: absolute;
+            height: 40px;
+            line-height: 40px;
+            background: pink;
+            z-index: 998;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="oDiv">
+        <ul id="oBox"></ul>
+        <div class="bgBox" id="bgBox"></div>
+    </div>
+
+
+</body>
+<script src="../../mySelf.js"></script>
+<script type="text/javascript">
+    var oBox = document.getElementById('oBox');
+    var bgBox = document.getElementById('bgBox');
+    var len = 10;
+    var str = '';
+    for (var i = 0; i < len; i++) {
+        str += '<li style="left:' + i * 40 + 'px">+1</li>';
+    }
+    oBox.innerHTML = str;
+    var aLi = oBox.getElementsByTagName('li');
+    var num = 0;
+
+    oBox.onclick = function() {
+        clearInterval(oBox.timer);
+        oBox.timer = setInterval(function() {
+            doMove(aLi[num], 'top', 10, -100, 40);
+            doMove(bgBox, 'width', 10, 402, 10, function() {
+                opacityFn(bgBox, 'opacity', 0.2, 0, 80, function() {
+                    bgBox.style.width = 0 + 'px';
+                    bgBox.style.opacity = 1;
+                });
+            });
+            opacityFn(aLi[num], 'opacity', 0.2, 0, 100, function() {
+                num++;
+                if (num == len) {
+                    for (var i = 0; i < len; i++) {
+                        aLi[i].style.top = 0 + 'px';
+                        aLi[i].style.opacity = 1;
+                        num = 0;
+                    }
+                }
+
+            });
+            num++;
+            if (num == len) {
+                num = 0;
+                clearInterval(oBox.timer);
+            }
+
+        }, 40)
+    };
+
+    // function doMove(obj, attr1, dir01, tag01, time, endFn) {
+    //     pos_ = parseInt(getStyle(obj, attr1));
+    //     clearInterval(obj.timerDo);
+    //     dir01 = tag01 > pos_ ? dir01 : -dir01;
+    //     obj.timerDo = setInterval(function() {
+    //         var pos = parseInt(getStyle(obj, attr1)) + dir01;
+    //         if (pos < tag01 && dir01 < 0 || pos > tag01 && dir01 > 0) {
+    //             pos = tag01;
+    //         }
+    //         if (pos == tag01) {
+    //             clearInterval(obj.timerDo);
+    //             endFn && endFn();
+    //         }
+    //         obj.style[attr1] = pos + 'px';
+
+    //     }, time);
+    // };
+    // //针对透明度的
+    // function opacityFn(obj, attr2, dir02, tag02, time, endFn) {
+    //     opacity_ = getStyle(obj, attr2);
+    //     clearInterval(obj.timer);
+    //     dir02 = tag02 > opacity_ ? dir02 : -dir02;
+    //     obj.timer = setInterval(function() {
+    //         var opacity = parseFloat(getStyle(obj, attr2)) + dir02;
+    //         obj.style[attr2] = opacity;
+
+    //         if (opacity == tag02) {
+
+    //             clearInterval(obj.timer);
+    //             endFn && endFn();
+    //         }
+
+    //     }, time);
+    // }
+
+
+
+
+    // function getStyle(obj, attr) {
+    //     return obj.currentStyle ? obj.currentStyle[attr] : getComputedStyle(obj, null)[attr];
+    // }
+</script>
+
+</html>
